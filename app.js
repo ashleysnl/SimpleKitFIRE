@@ -214,6 +214,7 @@ const el = {
     time: document.getElementById("activityTime"),
     title: document.getElementById("activityTitle"),
     location: document.getElementById("activityLocation"),
+    notes: document.getElementById("activityNotes"),
     category: document.getElementById("activityCategory"),
     currency: document.getElementById("activityCurrency"),
     plannedUsd: document.getElementById("activityPlannedUsd"),
@@ -232,6 +233,7 @@ const el = {
     itineraryDate: document.getElementById("costItemItineraryDate"),
     itineraryTime: document.getElementById("costItemItineraryTime"),
     itineraryLocation: document.getElementById("costItemItineraryLocation"),
+    notes: document.getElementById("costItemNotes"),
     itineraryStatus: document.getElementById("costItemItineraryStatus"),
   },
   dashboardQuickActivityInputs: {
@@ -242,6 +244,7 @@ const el = {
     time: document.getElementById("dashboardQuickActivityTime"),
     title: document.getElementById("dashboardQuickActivityTitle"),
     location: document.getElementById("dashboardQuickActivityLocation"),
+    notes: document.getElementById("dashboardQuickActivityNotes"),
     category: document.getElementById("dashboardQuickActivityCategory"),
     currency: document.getElementById("dashboardQuickActivityCurrency"),
     plannedUsd: document.getElementById("dashboardQuickActivityPlannedUsd"),
@@ -304,6 +307,7 @@ function normalizeImportedState(candidate) {
     time: item.time || "",
     title: String(item.title || ""),
     location: String(item.location || ""),
+    notes: String(item.notes || ""),
     category: normalizeCategory(item.category),
     currency: normalizeCurrency(item.currency),
     plannedUsd: Math.max(0, Number(item.plannedUsd) || 0),
@@ -314,6 +318,7 @@ function normalizeImportedState(candidate) {
   normalized.costItems = normalized.costItems.map((item) => ({
     id: item.id || makeId(),
     title: String(item.title || "Untitled Cost"),
+    notes: String(item.notes || ""),
     category: normalizeCategory(item.category),
     currency: normalizeCurrency(item.currency),
     plannedUsd: Math.max(0, Number(item.plannedUsd) || 0),
@@ -565,6 +570,7 @@ function buildActivityFromInputs(inputs) {
     time: inputs.time.value,
     title: inputs.title.value.trim(),
     location: inputs.location.value.trim(),
+    notes: (inputs.notes?.value || "").trim(),
     category: inputs.category.value,
     currency: normalizeCurrency(inputs.currency.value),
     plannedUsd: Number(inputs.plannedUsd.value) || 0,
@@ -615,6 +621,7 @@ function setActivityFormEditMode(item) {
   inputs.time.value = item.time || "";
   inputs.title.value = item.title || "";
   inputs.location.value = item.location || "";
+  inputs.notes.value = item.notes || "";
   inputs.category.value = item.category || "Activities";
   inputs.currency.value = normalizeCurrency(item.currency || "USD");
   inputs.plannedUsd.value = String(Number(item.plannedUsd) || 0);
@@ -647,6 +654,7 @@ function setCostItemFormEditMode(item) {
   inputs.editId.value = item.id;
   inputs.title.value = item.title || "";
   inputs.category.value = item.category || "Misc";
+  inputs.notes.value = item.notes || "";
   inputs.currency.value = normalizeCurrency(item.currency || "USD");
   inputs.plannedUsd.value = String(Number(item.plannedUsd) || 0);
   inputs.paidUsd.value = String(Number(item.paidUsd) || 0);
@@ -670,6 +678,7 @@ function setDashboardQuickFormEditMode(entry) {
   inputs.time.value = entry.time || "";
   inputs.title.value = entry.title || "";
   inputs.location.value = entry.location || "";
+  inputs.notes.value = entry.notes || "";
   inputs.category.value = entry.category || "Activities";
   inputs.currency.value = normalizeCurrency(entry.currency || "USD");
   inputs.plannedUsd.value = String(Number(entry.plannedUsd) || 0);
@@ -801,6 +810,7 @@ function renderCompactDashboardTimeline(summary) {
             `Planned: ${formatEnteredMoney(item.plannedUsd, item.currency)} (${money(amountToCad(item.plannedUsd, item.currency), "CAD")})`,
             `Paid: ${formatEnteredMoney(item.paidUsd, item.currency)} (${money(amountToCad(item.paidUsd, item.currency), "CAD")})`,
             item.location ? `Location: ${item.location}` : "",
+            item.notes ? `Notes: ${item.notes}` : "",
             item.source === "costItem" ? "Cost Item" : "Activity",
           ]
             .filter(Boolean)
@@ -886,6 +896,7 @@ function renderDashboardDayDetail(summary) {
                 <strong>${escapeHtml(item.title)}</strong>
                 <span>${item.time || "--:--"} • ${escapeHtml(item.category)} • ${escapeHtml(item.status)}${item.source === "costItem" ? " • Cost Item" : ""}</span>
                 <span class="muted">${escapeHtml(item.location || "Location TBD")}</span>
+                ${item.notes ? `<span class="muted">${escapeHtml(item.notes)}</span>` : ""}
               </div>
               <div class="day-detail-cost">
                 <strong>${money(amountToCad(item.plannedUsd, item.currency), "CAD")}</strong>
@@ -927,6 +938,7 @@ function getItineraryEntries(activities, costItems) {
     time: item.time || "",
     title: item.title,
     location: item.location || "",
+    notes: item.notes || "",
     category: item.category,
     currency: normalizeCurrency(item.currency),
     status: item.status,
@@ -943,6 +955,7 @@ function getItineraryEntries(activities, costItems) {
       time: item.itineraryTime || "",
       title: item.title,
       location: item.itineraryLocation || "",
+      notes: item.notes || "",
       category: item.category,
       currency: normalizeCurrency(item.currency),
       status: item.itineraryStatus || "Planned",
@@ -1246,6 +1259,7 @@ function renderReport(summary) {
               <div class="timeline-main">
                 <h5>${escapeHtml(item.title)}</h5>
                 <p>${escapeHtml(item.location || "Location TBD")} • ${escapeHtml(item.category)} • ${escapeHtml(item.status)}${item.source === "costItem" ? " • Cost Item" : ""}</p>
+                ${item.notes ? `<p class="muted">${escapeHtml(item.notes)}</p>` : ""}
               </div>
               <div class="timeline-cost">
                 <strong>Planned ${formatEnteredMoney(item.plannedUsd, item.currency)}</strong>
@@ -1296,6 +1310,7 @@ function addActivity(event) {
     item.time = draft.time;
     item.title = draft.title;
     item.location = draft.location;
+    item.notes = draft.notes;
     item.category = draft.category;
     item.currency = draft.currency;
     item.plannedUsd = draft.plannedUsd;
@@ -1326,6 +1341,7 @@ function addDashboardQuickActivity(event) {
       item.time = inputs.time.value;
       item.title = inputs.title.value.trim() || item.title;
       item.location = inputs.location.value.trim();
+      item.notes = (inputs.notes?.value || "").trim();
       item.category = inputs.category.value;
       item.currency = normalizeCurrency(inputs.currency.value);
       item.plannedUsd = Math.max(0, Number(inputs.plannedUsd.value) || 0);
@@ -1343,6 +1359,7 @@ function addDashboardQuickActivity(event) {
       item.itineraryDate = inputs.date.value;
       item.itineraryTime = inputs.time.value;
       item.itineraryLocation = inputs.location.value.trim();
+      item.notes = (inputs.notes?.value || "").trim();
       item.itineraryStatus = inputs.status.value;
     } else {
       return;
@@ -1366,6 +1383,7 @@ function addCostItem(event) {
   const draft = {
     id: makeId(),
     title: inputs.title.value.trim(),
+    notes: (inputs.notes?.value || "").trim(),
     category: inputs.category.value,
     currency: normalizeCurrency(inputs.currency.value),
     plannedUsd: Number(inputs.plannedUsd.value) || 0,

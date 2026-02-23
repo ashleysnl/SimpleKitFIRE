@@ -224,12 +224,14 @@ label {
 
 input,
 select,
+textarea,
 button {
   font: inherit;
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   min-height: 42px;
   border: 1px solid var(--line);
@@ -240,9 +242,19 @@ select {
 }
 
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   outline: 2px solid rgba(15, 106, 191, 0.2);
   border-color: rgba(15, 106, 191, 0.45);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.form-span-full {
+  grid-column: 1 / -1;
 }
 
 .btn {
@@ -611,6 +623,7 @@ select:focus {
 
 .dashboard-quick-form.disabled input,
 .dashboard-quick-form.disabled select,
+.dashboard-quick-form.disabled textarea,
 .dashboard-quick-form.disabled button {
   pointer-events: none;
 }
