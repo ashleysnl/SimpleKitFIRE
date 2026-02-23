@@ -1701,26 +1701,24 @@ function renderFamilyBudgetSummary(summary) {
   if (!el.familyBudgetSummary) return;
 
   const f = summary.familySummary;
+  const familyOutstandingCad = Math.max(0, f.plannedCad - f.paidCad);
   const stats = [
-    ["Total travelers", String(f.totalTravelers)],
-    ["Per person (planned)", f.totalTravelers ? money(f.perPersonPlannedCad, "CAD") : "—"],
-    ["Per person (paid)", f.totalTravelers ? money(f.perPersonPaidCad, "CAD") : "—"],
+    ["Per traveler (planned)", f.totalTravelers ? money(f.perPersonPlannedCad, "CAD") : "—"],
+    ["Per traveler (left to pay)", f.totalTravelers ? money(familyOutstandingCad / f.totalTravelers, "CAD") : "—"],
   ];
 
   if (f.showSplitByRole) {
     stats.push(["Per adult (planned)", f.adults ? money(f.perAdultPlannedCad, "CAD") : "—"]);
-    stats.push(["Per adult (paid)", f.adults ? money(f.perAdultPaidCad, "CAD") : "—"]);
+    stats.push(["Per adult (left to pay)", f.adults ? money(Math.max(0, f.perAdultPlannedCad - f.perAdultPaidCad), "CAD") : "—"]);
     stats.push(["Per child (planned)", f.children ? money(f.perChildPlannedCad, "CAD") : "—"]);
-    stats.push(["Per child (paid)", f.children ? money(f.perChildPaidCad, "CAD") : "—"]);
+    stats.push(["Per child (left to pay)", f.children ? money(Math.max(0, f.perChildPlannedCad - f.perChildPaidCad), "CAD") : "—"]);
   }
 
   const totalsLine = `
     <div class="family-budget-totals">
-      <span><strong>Adults:</strong> ${f.adults}</span>
-      <span><strong>Children:</strong> ${f.children}</span>
-      <span><strong>Planned:</strong> ${money(f.plannedCad, "CAD")}</span>
-      <span><strong>Paid:</strong> ${money(f.paidCad, "CAD")}</span>
-      <span><strong>Outstanding:</strong> ${money(Math.max(0, f.plannedCad - f.paidCad), "CAD")}</span>
+      <span><strong>Travelers:</strong> ${f.totalTravelers} (${f.adults} adult${f.adults === 1 ? "" : "s"}, ${f.children} child${f.children === 1 ? "" : "ren"})</span>
+      <span><strong>Paid so far:</strong> ${money(f.paidCad, "CAD")} of ${money(f.plannedCad, "CAD")}</span>
+      <span><strong>Left to pay:</strong> ${money(familyOutstandingCad, "CAD")}</span>
     </div>
   `;
 
@@ -1755,29 +1753,19 @@ function renderDashboard(summary) {
 
   const metrics = [
     {
-      label: "Total Budget (CDN)",
+      label: "Trip Budget (CDN)",
       value: money(summary.budgetCad, "CAD"),
       sub: "Editable in Trip Settings",
     },
     {
-      label: "Planned Cost (CDN)",
+      label: "Planned Total (CDN)",
       value: money(summary.plannedCad, "CAD"),
-      sub: "Mixed currencies converted to CDN",
+      sub: `${summary.budgetCad > 0 ? Math.round((summary.plannedCad / summary.budgetCad) * 100) : 0}% of budget`,
     },
     {
-      label: "Paid Cost (CDN)",
-      value: money(summary.paidCad, "CAD"),
-      sub: "Mixed currencies converted to CDN",
-    },
-    {
-      label: "Outstanding (CDN)",
-      value: money(summary.outstandingCad, "CAD"),
-      sub: `Planned - Paid`,
-    },
-    {
-      label: "Remaining vs Budget",
-      value: money(summary.remainingCad, "CAD"),
-      sub: summary.remainingCad < 0 ? "Over budget (planned)" : "Available budget",
+      label: summary.remainingCad < 0 ? "Over Budget (Planned)" : "Budget Left (Planned)",
+      value: money(Math.abs(summary.remainingCad), "CAD"),
+      sub: `Paid so far: ${money(summary.paidCad, "CAD")} • Left to pay: ${money(Math.max(0, summary.outstandingCad), "CAD")}`,
     },
   ];
 
