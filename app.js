@@ -903,6 +903,7 @@ function showCostNewItemForm() {
   uiState.costFormPlacement = { type: "new" };
   resetCostItemForm();
   uiState.costFormPlacement = { type: "new" };
+  el.costItemFormCancelEdit.hidden = false;
 }
 
 function hideCostInlineForm() {
