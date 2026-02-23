@@ -386,14 +386,15 @@
 
   <div id="importReminderModal" class="dashboard-day-detail no-print" hidden>
     <div class="dashboard-modal-backdrop" data-modal-close="import-reminder"></div>
-    <div class="dashboard-modal-card import-reminder-card" role="dialog" aria-modal="true" aria-labelledby="importReminderTitle">
-      <div class="day-detail-head">
-        <div>
-          <h4 id="importReminderTitle">Import Latest Backup?</h4>
-          <p class="muted small-copy">If you are moving between devices, import your latest JSON backup before making changes.</p>
-          <p id="importReminderLastUsed" class="muted small-copy"></p>
+      <div class="dashboard-modal-card import-reminder-card" role="dialog" aria-modal="true" aria-labelledby="importReminderTitle">
+        <div class="day-detail-head">
+          <div>
+            <h4 id="importReminderTitle">Import Latest Backup?</h4>
+            <p class="muted small-copy"><strong>Welcome to TravelPlanner.</strong> You can start planning right away without importing anything.</p>
+            <p class="muted small-copy">Import is only needed if you already have a saved JSON backup (for example, if you are continuing a trip plan from another device or restoring after clearing browser data).</p>
+            <p id="importReminderLastUsed" class="muted small-copy"></p>
+          </div>
         </div>
-      </div>
       <div class="import-reminder-actions">
         <button id="importReminderImportBtn" type="button" class="btn btn-primary">Import Backup</button>
         <button id="importReminderDismissBtn" type="button" class="btn btn-secondary control-btn">Continue Without Import</button>
