@@ -319,6 +319,7 @@ const el = {
   heroTripTitle: document.getElementById("heroTripTitle"),
   dashboardTripTitle: document.getElementById("dashboardTripTitle"),
   dashboardTripMeta: document.getElementById("dashboardTripMeta"),
+  dashboardCategoryBreakdownTitle: document.getElementById("dashboardCategoryBreakdownTitle"),
   tripSnapshotGrid: document.getElementById("tripSnapshotGrid"),
   dashboardTimelineRange: document.getElementById("dashboardTimelineRange"),
   itineraryComposer: document.getElementById("itineraryComposer"),
@@ -1812,6 +1813,7 @@ function syncSettingsInputs() {
 
 function renderTripSnapshot(summary) {
   if (!el.tripSnapshotGrid) return;
+  const currencyLabel = displayCurrencyLabel();
 
   const hasCosts = Number(summary.plannedCad) > 0 || Number(summary.paidCad) > 0;
   const hasDates = Boolean(summary.tripDays);
@@ -1819,17 +1821,17 @@ function renderTripSnapshot(summary) {
 
   const snapshotItems = [
     {
-      label: "Budget",
+      label: `Budget (${currencyLabel})`,
       value: Number(summary.budgetCad) > 0 ? moneyDisplayRoundedFromCad(summary.budgetCad) : "—",
       sub: Number(summary.budgetCad) > 0 ? "Trip budget" : "Set budget in Settings",
     },
     {
-      label: "Forecasted Cost",
+      label: `Forecasted Cost (${currencyLabel})`,
       value: hasCosts ? moneyDisplayRoundedFromCad(summary.plannedCad) : "—",
       sub: hasCosts ? "Forecast total" : "Add costs to calculate",
     },
     {
-      label: "Paid to Date",
+      label: `Paid to Date (${currencyLabel})`,
       value: hasCosts ? moneyDisplayRoundedFromCad(summary.paidCad) : "—",
       sub: hasCosts ? "Paid so far" : "Add costs to calculate",
     },
@@ -1987,6 +1989,9 @@ function renderDashboard(summary) {
   el.heroTripTitle.textContent = "Plan your family vacation without spreadsheets.";
   el.dashboardTripTitle.textContent = s.tripName || "Trip";
   el.dashboardTripMeta.textContent = `${shortDate(s.startDate)} to ${shortDate(s.endDate)} • ${travelerCount} traveler(s) • ${days}`;
+  if (el.dashboardCategoryBreakdownTitle) {
+    el.dashboardCategoryBreakdownTitle.textContent = `Category Breakdown (Forecast • ${displayCurrencyLabel()})`;
+  }
   renderOnboardingPanel();
 
   if (el.metricGrid) {

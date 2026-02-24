@@ -92,7 +92,7 @@
 
         <div class="breakdown-wrap">
           <div class="subsection dashboard-category-panel">
-            <h3>Category Breakdown (Forecast)</h3>
+            <h3 id="dashboardCategoryBreakdownTitle">Category Breakdown (Forecast)</h3>
             <div id="categoryBreakdown" class="category-list"></div>
           </div>
           <div class="subsection dashboard-budget-panel">
@@ -332,7 +332,7 @@
         </div>
 
         <form id="settingsForm" class="stack-form">
-          <label>
+          <label class="form-span-full">
             Trip Name
             <input type="text" id="tripName" placeholder="Family Vacation" />
           </label>
@@ -380,7 +380,7 @@
                 <input type="number" id="eurToCadRate" min="0" step="0.0001" />
               </label>
             </div>
-            <p class="muted small-copy">Used to convert totals for your selected display currency.</p>
+            <p class="muted small-copy">Used to convert totals for your selected display currency. No direct EUR to USD rate is needed (the app converts through CAD).</p>
           </details>
         </form>
 

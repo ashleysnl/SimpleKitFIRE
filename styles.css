@@ -520,6 +520,11 @@ body {
   gap: 12px;
 }
 
+.control-panel .stack-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
 label {
   display: grid;
   gap: 6px;
@@ -1814,6 +1819,10 @@ td {
 
   .activity-form {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .control-panel .stack-form {
+    grid-template-columns: 1fr;
   }
 
   .settings-currency-grid {
