@@ -8,6 +8,8 @@ const FAMILY_ADULTS_KEY = "travelplanner_trip_adults";
 const FAMILY_CHILDREN_KEY = "travelplanner_trip_children";
 const FAMILY_SPLIT_TOGGLE_KEY = "travelplanner_family_split_toggle";
 const ONBOARDING_DISMISSED_KEY = "travelplanner_onboarding_dismissed";
+const ITIN_FORM_MODE_KEY = "travelplanner_itin_form_mode";
+const COST_FORM_MODE_KEY = "travelplanner_cost_form_mode";
 
 function makeId() {
   if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
@@ -254,6 +256,7 @@ const uiState = {
   aboutModalOpen: false,
   supportBannerQueued: false,
   supportBannerVisible: false,
+  toastTimer: null,
   onboardingVisible: false,
   appReady: false,
   dashboardQuickEdit: null,
@@ -299,6 +302,7 @@ const el = {
   onboardingPanel: document.getElementById("onboardingPanel"),
   loadSampleTripBtn: document.getElementById("loadSampleTripBtn"),
   startEmptyTripBtn: document.getElementById("startEmptyTripBtn"),
+  onboardingImportBackupBtn: document.getElementById("onboardingImportBackupBtn"),
   dismissOnboardingBtn: document.getElementById("dismissOnboardingBtn"),
   familyAdults: document.getElementById("familyAdults"),
   familyChildren: document.getElementById("familyChildren"),
@@ -322,6 +326,7 @@ const el = {
   dashboardCategoryBreakdownTitle: document.getElementById("dashboardCategoryBreakdownTitle"),
   tripSnapshotGrid: document.getElementById("tripSnapshotGrid"),
   dashboardTimelineRange: document.getElementById("dashboardTimelineRange"),
+  appToast: document.getElementById("appToast"),
   itineraryComposer: document.getElementById("itineraryComposer"),
   itineraryList: document.getElementById("itineraryList"),
   costsComposer: document.getElementById("costsComposer"),
@@ -369,6 +374,10 @@ const el = {
     paidUsd: document.getElementById("activityPaidUsd"),
     status: document.getElementById("activityStatus"),
   },
+  activityFormModeButtons: {
+    basic: document.getElementById("activityFormBasicBtn"),
+    advanced: document.getElementById("activityFormAdvancedBtn"),
+  },
   costItemInputs: {
     mode: document.getElementById("costItemFormMode"),
     editId: document.getElementById("costItemEditId"),
@@ -383,6 +392,10 @@ const el = {
     itineraryLocation: document.getElementById("costItemItineraryLocation"),
     notes: document.getElementById("costItemNotes"),
     itineraryStatus: document.getElementById("costItemItineraryStatus"),
+  },
+  costItemFormModeButtons: {
+    basic: document.getElementById("costItemFormBasicBtn"),
+    advanced: document.getElementById("costItemFormAdvancedBtn"),
   },
   dashboardQuickActivityInputs: {
     date: document.getElementById("dashboardQuickActivityDate"),
@@ -637,6 +650,71 @@ function compactCad(value) {
     return `${sign}$${short}k`;
   }
   return `${sign}${money(v, "CAD").replace("CA", "")}`;
+}
+
+function loadStoredFormMode(key) {
+  const saved = String(localStorage.getItem(key) || "").toLowerCase();
+  return saved === "advanced" ? "advanced" : "basic";
+}
+
+function showToast(message) {
+  if (!el.appToast) return;
+  el.appToast.textContent = String(message || "");
+  el.appToast.hidden = false;
+  el.appToast.classList.add("visible");
+  if (uiState.toastTimer) {
+    clearTimeout(uiState.toastTimer);
+  }
+  uiState.toastTimer = setTimeout(() => {
+    el.appToast.classList.remove("visible");
+    el.appToast.hidden = true;
+    uiState.toastTimer = null;
+  }, 2200);
+}
+
+function setSegmentedButtonsState(buttons, mode) {
+  if (!buttons) return;
+  Object.entries(buttons).forEach(([key, button]) => {
+    if (!button) return;
+    const active = key === mode;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+}
+
+function applyFormMode(formEl, mode, buttons) {
+  if (!formEl) return;
+  const normalized = mode === "advanced" ? "advanced" : "basic";
+  formEl.dataset.uiMode = normalized;
+  formEl.querySelectorAll(".form-advanced-field").forEach((field) => {
+    field.hidden = normalized !== "advanced";
+  });
+  setSegmentedButtonsState(buttons, normalized);
+}
+
+function getItineraryFormUiMode() {
+  return loadStoredFormMode(ITIN_FORM_MODE_KEY);
+}
+
+function getCostFormUiMode() {
+  return loadStoredFormMode(COST_FORM_MODE_KEY);
+}
+
+function setItineraryFormUiMode(mode) {
+  const normalized = mode === "advanced" ? "advanced" : "basic";
+  localStorage.setItem(ITIN_FORM_MODE_KEY, normalized);
+  applyFormMode(el.activityForm, normalized, el.activityFormModeButtons);
+}
+
+function setCostFormUiMode(mode) {
+  const normalized = mode === "advanced" ? "advanced" : "basic";
+  localStorage.setItem(COST_FORM_MODE_KEY, normalized);
+  applyFormMode(el.costItemForm, normalized, el.costItemFormModeButtons);
+}
+
+function syncFormModes() {
+  setItineraryFormUiMode(getItineraryFormUiMode());
+  setCostFormUiMode(getCostFormUiMode());
 }
 
 function backupMeta() {
@@ -1819,7 +1897,7 @@ function syncSettingsInputs() {
     el.settings.totalBudgetCad.value = Number.isFinite(displayBudget) ? String(Number(displayBudget.toFixed(2))) : "0";
   }
   if (el.totalBudgetLabelText) {
-    el.totalBudgetLabelText.textContent = `Total Budget (${displayCurrencyLabel()})`;
+    el.totalBudgetLabelText.textContent = "Total Budget";
   }
   if (el.settingsAdults && document.activeElement !== el.settingsAdults) {
     el.settingsAdults.value = String(Math.max(0, Number(familyPrefs.adults) || 0));
@@ -1832,39 +1910,40 @@ function syncSettingsInputs() {
 function renderTripSnapshot(summary) {
   if (!el.tripSnapshotGrid) return;
   const currencyLabel = displayCurrencyLabel();
-
-  const hasCosts = Number(summary.plannedCad) > 0 || Number(summary.paidCad) > 0;
+  const hasAnyCosts = Number(summary.plannedCad) > 0 || Number(summary.paidCad) > 0;
   const hasDates = Boolean(summary.tripDays);
   const hasActivities = (summary.activities || []).length > 0;
+  const travelerCount = Number(summary.familySummary?.totalTravelers) || 0;
+  const hasCostPerPerson = hasAnyCosts && travelerCount > 0;
 
   const snapshotItems = [
     {
-      label: "Budget",
+      label: "Total Planned",
       currency: currencyLabel,
-      value: Number(summary.budgetCad) > 0 ? moneyDisplayRoundedFromCad(summary.budgetCad) : "—",
-      sub: Number(summary.budgetCad) > 0 ? "Trip budget" : "Set budget in Settings",
+      value: hasAnyCosts ? moneyDisplayRoundedFromCad(summary.plannedCad) : "—",
+      sub: hasAnyCosts ? "Forecast total (all items)" : "Add costs to calculate",
     },
     {
-      label: "Forecasted",
+      label: "Total Paid",
       currency: currencyLabel,
-      value: hasCosts ? moneyDisplayRoundedFromCad(summary.plannedCad) : "—",
-      sub: hasCosts ? "Forecast total" : "Add costs to calculate",
+      value: hasAnyCosts ? moneyDisplayRoundedFromCad(summary.paidCad) : "—",
+      sub: hasAnyCosts ? "Paid total (all items)" : "Add costs to calculate",
     },
     {
-      label: "Paid to Date",
+      label: "Cost / Person",
       currency: currencyLabel,
-      value: hasCosts ? moneyDisplayRoundedFromCad(summary.paidCad) : "—",
-      sub: hasCosts ? "Paid so far" : "Add costs to calculate",
+      value: hasCostPerPerson ? moneyDisplayRoundedFromCad(summary.familySummary.perPersonPlannedCad) : "—",
+      sub: travelerCount <= 0 ? "Set adults/kids in Settings" : hasAnyCosts ? "Uses adults + kids" : "Add costs to calculate",
     },
     {
-      label: "Trip length",
+      label: "Trip Days",
       value: hasDates ? `${summary.tripDays} day${summary.tripDays === 1 ? "" : "s"}` : "—",
-      sub: hasDates ? "Includes start + end date" : "Set dates to calculate",
+      sub: hasDates ? "Includes start + end" : "Set dates",
       title: "Trip length includes both the start and end dates.",
     },
     {
       label: "Activities",
-      value: String((summary.activities || []).length || 0),
+      value: hasActivities ? String((summary.activities || []).length) : "—",
       sub: hasActivities ? "Itinerary items" : "Add your first activity",
     },
   ];
@@ -2267,6 +2346,7 @@ function renderReport(summary) {
 function render() {
   refreshCategorySelectOptions();
   syncSettingsInputs();
+  syncFormModes();
   const summary = calculateSummary();
   renderTripSnapshot(summary);
   renderDashboard(summary);
@@ -2616,7 +2696,13 @@ async function handleGlobalSaveClick() {
   exportJsonBackup();
 }
 
-function openImportPicker() {
+function confirmBackupImportReplaceIfNeeded() {
+  if (!hasMeaningfulTripData() || isCurrentTripDemoLike()) return true;
+  return window.confirm("Importing a backup will replace current trip data. Continue?");
+}
+
+function openImportPicker({ confirmReplace = false } = {}) {
+  if (confirmReplace && !confirmBackupImportReplaceIfNeeded()) return;
   el.importJsonFile.value = "";
   el.importJsonFile.click();
 }
@@ -2811,6 +2897,10 @@ async function importJsonBackup(event) {
     const text = await file.text();
     const parsed = JSON.parse(text);
     const incoming = parsed?.data ? parsed.data : parsed;
+    if (!confirmBackupImportReplaceIfNeeded()) {
+      event.target.value = "";
+      return;
+    }
     state = normalizeImportedState(incoming);
     const nowIso = new Date().toISOString();
     const meta = backupMeta();
@@ -2821,10 +2911,12 @@ async function importJsonBackup(event) {
     saveState(false);
     closeImportReminder();
     render();
-    alert("Backup imported successfully.");
+    showToast("Backup imported.");
   } catch (error) {
     console.error(error);
     alert("Could not import that JSON backup. Please choose a valid tracker backup file.");
+  } finally {
+    if (event?.target) event.target.value = "";
   }
 }
 
@@ -2876,17 +2968,18 @@ el.resetDemoBtn.addEventListener("click", resetDemoData);
 el.startPlanningBtn?.addEventListener("click", startPlanningFromHero);
 el.loadSampleTripBtn?.addEventListener("click", loadSampleTripFromOnboarding);
 el.startEmptyTripBtn?.addEventListener("click", startEmptyTripFromOnboarding);
+el.onboardingImportBackupBtn?.addEventListener("click", () => openImportPicker({ confirmReplace: false }));
 el.dismissOnboardingBtn?.addEventListener("click", dismissOnboardingPanelOnly);
 el.aboutAppBtn?.addEventListener("click", openAboutModal);
 el.footerAboutBtn?.addEventListener("click", openAboutModal);
 el.exportJsonBtn.addEventListener("click", exportJsonBackup);
-el.importJsonBtn.addEventListener("click", openImportPicker);
+el.importJsonBtn.addEventListener("click", () => openImportPicker({ confirmReplace: false }));
 el.importJsonFile.addEventListener("change", importJsonBackup);
 el.globalSaveBtn?.addEventListener("click", handleGlobalSaveClick);
 el.importReminderModal?.addEventListener("click", handleImportReminderModalClick);
 el.importReminderImportBtn?.addEventListener("click", () => {
   closeImportReminder();
-  openImportPicker();
+  openImportPicker({ confirmReplace: false });
 });
 el.importReminderDismissBtn?.addEventListener("click", closeImportReminder);
 el.aboutModal?.addEventListener("click", handleAboutModalClick);
@@ -2896,6 +2989,10 @@ el.supportBannerCoffeeLink?.addEventListener("click", () => dismissSupportBanner
 el.dashboardQuickActivityForm.addEventListener("submit", addDashboardQuickActivity);
 el.dashboardQuickFormCancelEdit.addEventListener("click", cancelDashboardQuickEdit);
 document.addEventListener("keydown", handleGlobalKeydown);
+el.activityFormModeButtons.basic?.addEventListener("click", () => setItineraryFormUiMode("basic"));
+el.activityFormModeButtons.advanced?.addEventListener("click", () => setItineraryFormUiMode("advanced"));
+el.costItemFormModeButtons.basic?.addEventListener("click", () => setCostFormUiMode("basic"));
+el.costItemFormModeButtons.advanced?.addEventListener("click", () => setCostFormUiMode("advanced"));
 el.tabButtons.forEach((button) => {
   button.addEventListener("click", () => switchTab(button.dataset.tabTarget));
 });

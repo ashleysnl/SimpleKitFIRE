@@ -51,7 +51,12 @@
         <div class="offline-badge-wrap" aria-label="Offline storage status">
           <span class="offline-badge">Works offline (even on flights)</span>
           <span class="offline-badge-note">Your data is stored locally in your browser.</span>
+          <span class="offline-badge-trust">No data leaves your device.</span>
         </div>
+      </div>
+      <div class="trip-snapshot-auto-note">
+        <button type="button" class="trip-snapshot-info" aria-label="Snapshot updates automatically. Data stays on this device." title="Snapshot updates automatically. Data stays on this device.">i</button>
+        <span class="muted small-copy">Snapshot updates automatically. Data stays on this device.</span>
       </div>
       <div id="tripSnapshotGrid" class="trip-snapshot-grid" aria-live="polite"></div>
     </section>
@@ -84,6 +89,7 @@
           <div class="onboarding-actions">
             <button id="loadSampleTripBtn" type="button" class="btn btn-primary">Load sample Disney-style family trip (demo)</button>
             <button id="startEmptyTripBtn" type="button" class="btn btn-secondary control-btn">Start empty</button>
+            <button id="onboardingImportBackupBtn" type="button" class="btn btn-secondary control-btn">Import backup</button>
             <button id="dismissOnboardingBtn" type="button" class="icon-btn">Dismiss</button>
           </div>
         </section>
@@ -138,6 +144,10 @@
           <input type="hidden" id="activityEditId" />
           <div class="dashboard-quick-form-header">
             <strong id="activityFormTitle">Add Itinerary Item</strong>
+            <div class="form-mode-toggle" role="group" aria-label="Itinerary form mode">
+              <button id="activityFormBasicBtn" type="button" class="mode-btn" aria-pressed="true">Basic</button>
+              <button id="activityFormAdvancedBtn" type="button" class="mode-btn" aria-pressed="false">Advanced</button>
+            </div>
             <button id="activityFormCancelEdit" type="button" class="icon-btn" hidden>Cancel Edit</button>
           </div>
           <label>
@@ -156,7 +166,7 @@
             Location
             <input type="text" id="activityLocation" placeholder="Miami" />
           </label>
-          <label class="form-span-full">
+          <label class="form-span-full form-advanced-field">
             Notes
             <textarea id="activityNotes" rows="2" placeholder="Confirmation numbers, packing reminders, booking details..."></textarea>
           </label>
@@ -173,7 +183,7 @@
               <option value="__add__">Add Category...</option>
             </select>
           </label>
-          <label>
+          <label class="form-advanced-field">
             Currency
             <select id="activityCurrency">
               <option value="USD">USD</option>
@@ -184,11 +194,11 @@
             Forecast
             <input type="number" id="activityPlannedUsd" min="0" step="0.01" required />
           </label>
-          <label>
+          <label class="form-advanced-field">
             Paid
             <input type="number" id="activityPaidUsd" min="0" step="0.01" value="0" />
           </label>
-          <label>
+          <label class="form-advanced-field">
             Status
             <select id="activityStatus">
               <option value="Planned">Planned</option>
@@ -236,6 +246,10 @@
           <input type="hidden" id="costItemEditId" />
           <div class="dashboard-quick-form-header">
             <strong id="costItemFormTitle">Add Cost Item</strong>
+            <div class="form-mode-toggle" role="group" aria-label="Cost item form mode">
+              <button id="costItemFormBasicBtn" type="button" class="mode-btn" aria-pressed="true">Basic</button>
+              <button id="costItemFormAdvancedBtn" type="button" class="mode-btn" aria-pressed="false">Advanced</button>
+            </div>
             <button id="costItemFormCancelEdit" type="button" class="icon-btn" hidden>Cancel Edit</button>
           </div>
           <label>
@@ -255,7 +269,7 @@
               <option value="__add__">Add Category...</option>
             </select>
           </label>
-          <label>
+          <label class="form-advanced-field">
             Currency
             <select id="costItemCurrency">
               <option value="USD">USD</option>
@@ -266,7 +280,7 @@
             Forecast
             <input type="number" id="costItemPlannedUsd" min="0" step="0.01" required />
           </label>
-          <label>
+          <label class="form-advanced-field">
             Paid
             <input type="number" id="costItemPaidUsd" min="0" step="0.01" value="0" />
           </label>
@@ -277,23 +291,23 @@
               Show this cost item in itinerary timeline
             </span>
           </label>
-          <label>
+          <label class="form-advanced-field">
             Itinerary Date (optional)
             <input type="date" id="costItemItineraryDate" />
           </label>
-          <label>
+          <label class="form-advanced-field">
             Itinerary Time (optional)
             <input type="time" id="costItemItineraryTime" />
           </label>
-          <label>
+          <label class="form-advanced-field">
             Itinerary Location (optional)
             <input type="text" id="costItemItineraryLocation" placeholder="Orlando Airport" />
           </label>
-          <label class="form-span-full">
+          <label class="form-span-full form-advanced-field">
             Notes
             <textarea id="costItemNotes" rows="2" placeholder="Policy details, parking instructions, reservation notes..."></textarea>
           </label>
-          <label>
+          <label class="form-advanced-field">
             Itinerary Status
             <select id="costItemItineraryStatus">
               <option value="Planned">Planned</option>
@@ -362,14 +376,14 @@
           </div>
           <div class="settings-inline-grid settings-budget-row form-span-full">
             <label class="settings-budget-field">
-              <span id="totalBudgetLabelText">Total Budget (USD)</span>
+              <span id="totalBudgetLabelText">Total Budget</span>
               <input type="number" id="totalBudgetCad" min="0" step="0.01" />
             </label>
             <label class="settings-display-field">
               Display Currency
               <select id="displayCurrency">
                 <option value="USD">USD</option>
-                <option value="CAD">CDN</option>
+                <option value="CAD">CAD</option>
                 <option value="EUR">EUR</option>
               </select>
             </label>
@@ -378,15 +392,15 @@
             <summary>Currency exchange rates (edit)</summary>
             <div class="settings-currency-grid">
               <label>
-                USD to CAD Rate
+                USD → CAD exchange rate
                 <input type="number" id="usdToCadRate" min="0" step="0.0001" />
               </label>
               <label>
-                EUR to CAD Rate
+                EUR → CAD exchange rate
                 <input type="number" id="eurToCadRate" min="0" step="0.0001" />
               </label>
             </div>
-            <p class="muted small-copy">Used to convert totals for your selected display currency. No direct EUR to USD rate is needed (the app converts through CAD).</p>
+            <p class="muted small-copy">Rates are used only for on-device conversions; nothing is uploaded.</p>
           </details>
         </form>
 
@@ -619,6 +633,8 @@
       </div>
     </div>
   </div>
+
+  <div id="appToast" class="app-toast no-print" aria-live="polite" hidden></div>
 
   <script src="app.js"></script>
 </body>
