@@ -624,6 +624,7 @@ body {
 .control-panel .stack-form label {
   gap: 4px;
   min-width: 0;
+  overflow: hidden;
 }
 
 .control-panel .stack-form input,
@@ -1316,6 +1317,43 @@ textarea {
 .dashboard-quick-form > label,
 .activity-form > label {
   min-width: 0;
+  overflow: hidden;
+}
+
+.activity-form input[type="date"],
+.activity-form input[type="time"],
+.dashboard-quick-form input[type="date"],
+.dashboard-quick-form input[type="time"] {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  inline-size: 100%;
+  min-inline-size: 0;
+  font-size: 0.9rem;
+  padding-right: 6px;
+}
+
+.activity-form input[type="date"]::-webkit-datetime-edit,
+.activity-form input[type="time"]::-webkit-datetime-edit,
+.dashboard-quick-form input[type="date"]::-webkit-datetime-edit,
+.dashboard-quick-form input[type="time"]::-webkit-datetime-edit {
+  padding: 0;
+}
+
+.activity-form input[type="date"]::-webkit-date-and-time-value,
+.activity-form input[type="time"]::-webkit-date-and-time-value,
+.dashboard-quick-form input[type="date"]::-webkit-date-and-time-value,
+.dashboard-quick-form input[type="time"]::-webkit-date-and-time-value {
+  margin: 0;
+  text-align: left;
+}
+
+.activity-form input[type="date"]::-webkit-calendar-picker-indicator,
+.activity-form input[type="time"]::-webkit-calendar-picker-indicator,
+.dashboard-quick-form input[type="date"]::-webkit-calendar-picker-indicator,
+.dashboard-quick-form input[type="time"]::-webkit-calendar-picker-indicator {
+  margin: 0;
+  padding: 0;
 }
 
 .dashboard-quick-form-header {

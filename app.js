@@ -1933,7 +1933,7 @@ function renderTripSnapshot(summary) {
       label: "Cost / Person",
       currency: currencyLabel,
       value: hasCostPerPerson ? moneyDisplayRoundedFromCad(summary.familySummary.perPersonPlannedCad) : "—",
-      sub: travelerCount <= 0 ? "Set adults/kids in Settings" : hasAnyCosts ? "Uses adults + kids" : "Add costs to calculate",
+      sub: travelerCount <= 0 ? "Set travelers" : hasAnyCosts ? "Uses adults + kids" : "Add costs to calculate",
     },
     {
       label: "Trip Days",
@@ -1943,7 +1943,7 @@ function renderTripSnapshot(summary) {
     },
     {
       label: "Activities",
-      value: hasActivities ? String((summary.activities || []).length) : "—",
+      value: String((summary.activities || []).length || 0),
       sub: hasActivities ? "Itinerary items" : "Add your first activity",
     },
   ];
