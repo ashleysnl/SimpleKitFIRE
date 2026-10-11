@@ -129,11 +129,21 @@
       ]
   }
   </script>
+
+  <!-- Shared V2 components, bundled locally by the portable site build. -->
+  <link rel="stylesheet" href="https://core.simplekit.app/v2/foundations.css">
+  <link rel="stylesheet" href="https://core.simplekit.app/v2/system.css">
+  <link rel="stylesheet" href="https://core.simplekit.app/v2/calculators.css">
+  <link rel="stylesheet" href="./v2-calculator.css">
+  <script defer src="https://core.simplekit.app/v2/shell.js"></script>
 </head>
-<body>
+<body class="sk-v2" data-v2-system="1" data-v2-calculator="fire-calculator" data-v2-family="investing">
+<a class="v2s-skip v2-button" href="#mainContent">Skip to content</a>
+<header class="v2s-header"><div class="v2s-wrap v2s-header-inner"><a class="v2s-brand" href="/" aria-label="SimpleKit home"><svg aria-hidden="true" focusable="false"><use href="https://core.simplekit.app/v2/icons/sprite.svg#calculator"></use></svg>SimpleKit</a><button type="button" class="v2s-menu" data-v2s-menu aria-controls="v2-fire-calculator-nav" aria-expanded="false" hidden>Menu</button><nav class="v2s-nav" id="v2-fire-calculator-nav" aria-label="Main navigation"><a href="/">Home</a><a href="/tools/" aria-current="page">Tools</a><a href="/learn/">Learn</a><a href="/about/">About</a><a href="/support/">Support</a></nav></div></header>
+
   <div class="page-shell">
-    <header class="hero" aria-labelledby="heroTitle">
-      <div data-simplekit-header></div>
+    <header class="hero v2c-hero" aria-labelledby="heroTitle">
+      
       <div class="hero-content">
         <nav class="tabs hero-tabs no-print" aria-label="Page sections">
           <a class="tab-btn active" href="#calculator">Calculator</a>
@@ -181,8 +191,8 @@
       <div id="snapshotGrid" class="trip-snapshot-grid" aria-live="polite"></div>
     </section>
 
-    <main class="app-main">
-      <section id="what-is-fire" class="panel" aria-labelledby="fireIntroTitle">
+    <main class="app-main v2c-main" id="mainContent" tabindex="-1">
+      <section id="what-is-fire" class="panel v2c-surface" aria-labelledby="fireIntroTitle">
         <div class="panel-header">
           <h2 id="fireIntroTitle">What Is FIRE?</h2>
           <p>Financial independence means your portfolio can support your spending without depending entirely on employment income.</p>
@@ -199,7 +209,7 @@
               This is a simplified planning estimate, not personalized financial advice. Markets, taxes, inflation, and your withdrawal pattern all matter.
             </p>
           </article>
-          <aside class="subsection formula-card" aria-label="FIRE formula">
+          <aside class="subsection formula-card v2c-card" aria-label="FIRE formula">
             <p class="formula-label">Simple formula</p>
             <p class="formula-value">FIRE Number = Annual Spending × Target Withdrawal Multiple</p>
             <p class="muted small-copy">Default multiple: 25x, which is roughly equivalent to a 4% withdrawal rate.</p>
@@ -212,7 +222,7 @@
         </div>
       </section>
 
-      <section id="calculator" class="panel" aria-labelledby="calculatorTitle">
+      <section id="calculator" class="panel v2c-surface" aria-labelledby="calculatorTitle">
         <div class="panel-header">
           <h2 id="calculatorTitle">Calculator</h2>
           <p>Enter a few core assumptions to estimate your FIRE number, progress, and projected timeline.</p>
@@ -332,7 +342,7 @@
             </div>
           </form>
 
-          <aside class="panel result-panel" aria-labelledby="resultsTitle">
+          <aside class="panel result-panel v2c-surface" aria-labelledby="resultsTitle">
             <div class="panel-header result-header">
               <div>
                 <h2 id="resultsTitle">Live results</h2>
@@ -366,20 +376,20 @@
         </div>
       </section>
 
-      <section id="timeline" class="panel" aria-labelledby="timelineTitle">
+      <section id="timeline" class="panel v2c-surface" aria-labelledby="timelineTitle">
         <div class="panel-header">
           <h2 id="timelineTitle">Projection timeline</h2>
           <p>See how your portfolio could grow year by year, what your milestones look like, and when you may cross your FIRE target.</p>
         </div>
         <div class="content-grid chart-grid">
-          <article class="subsection chart-card">
+          <article class="subsection chart-card v2c-chart">
             <div class="chart-head">
               <h3>Portfolio growth</h3>
               <p class="muted small-copy">Estimated ending portfolio by year.</p>
             </div>
             <div id="growthChart" class="chart-surface" role="img" aria-label="Portfolio growth chart"></div>
           </article>
-          <article class="subsection chart-card">
+          <article class="subsection chart-card v2c-chart">
             <div class="chart-head">
               <h3>Current assets vs FIRE target</h3>
               <p class="muted small-copy">A quick glance at how much of the target is already funded.</p>
@@ -390,7 +400,7 @@
         <div id="milestoneGrid" class="metric-grid milestone-grid"></div>
         <details class="projection-details">
           <summary>Show yearly projection table</summary>
-          <div class="projection-table-wrap">
+          <div class="projection-table-wrap v2c-table">
             <table class="projection-table">
               <thead>
                 <tr>
@@ -409,13 +419,13 @@
         </details>
       </section>
 
-      <section id="scenarios" class="panel" aria-labelledby="scenarioTitle">
+      <section id="scenarios" class="panel v2c-surface" aria-labelledby="scenarioTitle">
         <div class="panel-header">
           <h2 id="scenarioTitle">Scenario testing</h2>
           <p>Compare your current plan with a few simple changes that often matter most.</p>
         </div>
         <div class="content-grid scenario-layout">
-          <article class="subsection chart-card">
+          <article class="subsection chart-card v2c-chart">
             <div class="chart-head">
               <h3>Timeline comparison</h3>
               <p class="muted small-copy">Lower bars mean fewer years until FI.</p>
@@ -426,7 +436,7 @@
         </div>
       </section>
 
-      <section id="learn" class="panel" aria-labelledby="insightsTitle">
+      <section id="learn" class="panel v2c-surface" aria-labelledby="insightsTitle">
         <div class="panel-header">
           <h2 id="insightsTitle">Educational insights</h2>
           <p>Short takeaways to help you understand what the numbers mean in plain English.</p>
@@ -434,7 +444,7 @@
         <div id="insightGrid" class="content-grid insight-grid"></div>
       </section>
 
-      <section class="panel" aria-labelledby="canadaTitle">
+      <section class="panel v2c-surface" aria-labelledby="canadaTitle">
         <div class="panel-header">
           <h2 id="canadaTitle">Canadian context</h2>
           <p>FIRE planning in Canada often works best when you combine portfolio math with account structure and future benefits.</p>
@@ -459,7 +469,7 @@
         </div>
       </section>
 
-      <section class="panel" aria-labelledby="relatedToolsTitle">
+      <section class="panel v2c-surface" aria-labelledby="relatedToolsTitle">
         <div class="panel-header">
           <h2 id="relatedToolsTitle">Continue your planning</h2>
           <p>Use the next SimpleKit tool that answers the question you are likely to ask after your FIRE estimate.</p>
@@ -484,7 +494,7 @@
         </div>
       </section>
 
-      <section class="panel seo-panel" aria-labelledby="seoTitle">
+      <section class="panel seo-panel v2c-surface" aria-labelledby="seoTitle">
         <div class="panel-header">
           <h2 id="seoTitle">FIRE calculator guide</h2>
           <p>Helpful context for common questions about financial independence, retire early planning, and the 4% rule in Canada.</p>
@@ -505,7 +515,7 @@
         </article>
       </section>
 
-      <section class="panel" aria-labelledby="canadaContextHeading-fire">
+      <section class="panel v2c-surface" aria-labelledby="canadaContextHeading-fire">
         <div class="panel-header">
           <div>
             <p class="section-kicker">Canadian context</p>
@@ -532,7 +542,7 @@
         </div>
       </section>
       <div data-simplekit-support></div>
-      <div data-simplekit-footer></div>
+      
     </main>
   </div>
 
@@ -555,5 +565,8 @@
 
   <script type="module" src="https://core.simplekit.app/core.js"></script>
   <script src="app.js"></script>
+
+<footer class="v2s-footer"><div class="v2s-wrap v2s-footer-inner"><div class="v2s-stack"><strong>SimpleKit</strong><p class="v2s-help">Free planning tools with clearer next steps.</p></div><div class="v2s-stack"><nav aria-label="Footer navigation"><a href="/tools/">Tools</a><a href="/learn/">Learn</a><a href="/methodology/">Methodology &amp; sources</a><a href="/privacy/">Privacy</a><a href="/support/">Support</a></nav><p class="v2s-help">Estimates for planning, not financial advice. Financial inputs stay in your browser; existing site analytics are described in our privacy policy.</p></div></div></footer>
+<script defer src="https://core.simplekit.app/v2/calculators.js"></script>
 </body>
 </html>
